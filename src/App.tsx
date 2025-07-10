@@ -1,5 +1,5 @@
 import { Header } from "./components/header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TrashIcon } from "@phosphor-icons/react"
 
 interface ChecklistItem {
@@ -13,8 +13,15 @@ interface Task {
 }
 
 export function App() {
-    const [itemList, setItemList] = useState<Task[]>([]);
+    const [itemList, setItemList] = useState<Task[]>(() => {
+        const saved = localStorage.getItem("tarefas");
+        return saved ? JSON.parse(saved) : [];
+    });
     const [inputText, setInputText] = useState("");
+
+    useEffect(() => {
+        localStorage.setItem("tarefas", JSON.stringify(itemList));
+    }, [itemList]);
 
     function handleAdicionarItem() {
         const textoSemEspaco = inputText.trim();
@@ -78,11 +85,12 @@ export function App() {
     return (
         <>
         <Header />
-            <input type="text"
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-teal-600 to-teal-100">
+             <input type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Qual é a sua tarefa de hoje?"
-                className="rounded-none m-5 w-60 h-15 text-center border-2 border-teal-70 " />
+                className="rounded-none m-5 w-60 h-15 text-center border-2 border-teal-700 " />
             <button className="Adicionar bg-teal-700 rounded-none m-10 w-30 h-10"
                 onClick={handleAdicionarItem}>Adicionar</button>
 
@@ -119,12 +127,15 @@ export function App() {
                         </ul>
                             </div>
                             <button className="rounded-none bg-red-300 mask-direita ml-4" onClick={() => handleEliminarItem(i)}>
-                                <TrashIcon size={30} />
+                                <TrashIcon size={20} />
                             </button>
                         </div>
                     </li>
                 ))}
             </ul>
+
+        </div>
+           
         </>
     )
 }
